@@ -1,0 +1,7 @@
+---
+packages:
+  - python-apt
+  - vim
+  - htop
+  - unattended-upgrades
+

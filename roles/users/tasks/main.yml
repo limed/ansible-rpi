@@ -1,0 +1,55 @@
+---
+- name: Create user account
+  become: yes
+  user:
+    name: "{{ item.user }}"
+    shell: "/bin/bash"
+    groups: "users,sudo"
+    system: yes
+    state: present
+  with_items:
+    - "{{ account_names }}"
+
+- name: Add ssh key for users
+  authorized_key:
+    user: "{{ item.user }}"
+    key: "{{ item.key }}"
+    state: present
+  with_items:
+    - "{{ account_names }}"
+
+- name: Copying sudoers file
+  copy:
+    src: 'sudoers'
+    dest: '/etc/sudoers.d/99-users'
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Copy basic vimrc file
+  copy:
+    src: 'vimrc'
+    dest: "/home/{{ item.user }}/.vimrc"
+    mode: '0644'
+  with_items:
+    - "{{ account_names }}"
+
+- name: Disable root password
+  user:
+    name: root
+    password_lock: yes
+
+- name: Set pi key with authorized key
+  authorized_key:
+    user: pi
+    key: "{{ item.key }}"
+    state: present
+  with_items:
+    - "{{ account_names }}"
+  when: ansible_facts['lsb']['id'] ==  "Raspbian"
+
+- name: Disable password for pi user
+  user:
+    name: pi
+    password_lock: yes
+  when: ansible_facts['lsb']['id'] == "Raspbian"

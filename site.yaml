@@ -1,0 +1,26 @@
+---
+- name: Apply common config to all node
+  hosts: all
+  remote_user: pi
+  gather_facts: True
+  become: true
+
+  vars_files:
+    - './vars/users.yaml'
+
+  roles:
+    - common
+    - users
+
+- name: Apply config to unifi-controller
+  hosts: unifi-controller
+  remote_user: pi
+  become: true
+
+  tasks:
+    - name: Set hostname
+      hostname:
+        name: unifi-controller
+
+  roles:
+    - unifi
