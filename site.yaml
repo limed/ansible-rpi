@@ -12,6 +12,22 @@
     - common
     - users
 
+  tags:
+    - common
+
+- name: Apply config to pihole
+  hosts: pihole
+  remote_user: pi
+  become: true
+
+  tasks:
+    - name: Set hostname
+      hostname:
+        name: "pihole{{ groups['pihole'].index(inventory_hostname) + 1 }}"
+
+  tags:
+    - pihole
+
 - name: Apply config to unifi-controller
   hosts: unifi-controller
   remote_user: pi
@@ -23,4 +39,7 @@
         name: unifi-controller
 
   roles:
+    - unifi
+
+  tags:
     - unifi
